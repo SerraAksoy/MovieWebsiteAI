@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User");
 const Review = require("../models/Review"); // Eğer böyle bir model yoksa oluşturmalısın
 const authMiddleware = require("../middleware/authMiddleware");
 

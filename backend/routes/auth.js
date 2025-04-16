@@ -38,36 +38,33 @@ router.post('/register', async (req, res) => {
 
 
 // Kullanıcı giriş rotası
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
     const { email, password } = req.body;
+    console.log("Gelen Giriş İsteği:", req.body); // Gelen isteği kontrol et
 
     try {
-        // Kullanıcıyı bul
         const user = await User.findOne({ email });
+
         if (!user) {
-            return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
+            console.error("Kullanıcı bulunamadı!");
+            return res.status(401).json({ message: "Geçersiz e-posta veya şifre." });
         }
 
-        // Şifreyi kontrol et
         const isMatch = await bcrypt.compare(password, user.password);
+
         if (!isMatch) {
-            return res.status(400).json({ message: 'Geçersiz şifre.' });
+            console.error("Yanlış şifre!");
+            return res.status(401).json({ message: "Geçersiz e-posta veya şifre." });
         }
 
-        // JWT token oluştur
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-        res.json({
-            message: 'Giriş başarılı.',
-            token,
-            user: {
-                id: user._id,
-                username: user.username,
-                email: user.email,
-            },
-        });
+        console.log("Dönen Token:", token); // Token'ın oluşturulduğunu kontrol et
+
+        res.status(200).json({ message: "Giriş başarılı!", token, user });
     } catch (error) {
-        res.status(500).json({ message: 'Giriş sırasında bir hata oluştu.' });
+        console.error("Giriş sırasında hata oluştu:", error);
+        res.status(500).json({ message: "Sunucu hatası. Lütfen tekrar deneyin." });
     }
 });
 module.exports = router;
