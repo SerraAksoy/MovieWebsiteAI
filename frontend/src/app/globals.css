@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #595758;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #595758;
+}
+
+/* Custom Theme Example (e.g. crimson mode) */
+[data-theme="crimson"] {
+  --background: #1f000b;
+  --foreground: #fbe4ea;
+}
+
+@font-face {
+  font-family: 'Cascadia Mono';
+  src: url('CascadiaMono.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Cascadia Mono', "Inter", sans-serif;
+}
