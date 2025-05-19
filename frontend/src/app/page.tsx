@@ -1,7 +1,25 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+// useSearchParams için bileşen:
+function SearchQueryHandler({ onQuery }: { onQuery: (query: string) => void }) {
+  'use client';
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { useSearchParams } = require("next/navigation");
+  const { useEffect } = require("react");
+  const searchParams = useSearchParams();
+  const queryParam = searchParams.get("query");
+
+  useEffect(() => {
+    if (queryParam) {
+      onQuery(queryParam);
+    }
+  }, [queryParam, onQuery]);
+
+  return null;
+}
 import axios from "axios";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -28,8 +46,6 @@ interface Recommendation {
 export default function Home() {
     const { user } = useAuth();
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const queryParam = searchParams.get("query");
     const [showPosterUpload, setShowPosterUpload] = useState(false);
     const [movies, setMovies] = useState<Movie[]>([]);
     const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -134,16 +150,7 @@ export default function Home() {
         }
     };
 
-    useEffect(() => {
-        if (queryParam) {
-            setSearchTerm(queryParam);
-            axios.get(
-                `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=tr-TR&query=${queryParam}`
-            )
-            .then((response) => setMovies(response.data.results))
-            .catch((error) => console.error("Arama hatası:", error));
-        }
-    }, [queryParam]);
+    // Search query param effect is now handled by SearchQueryHandler
 
     const handleWatchlist = async (movie: Movie) => {
         if (!user) {
@@ -192,6 +199,19 @@ export default function Home() {
                     <p className="mt-2 text-sm text-white/70 italic">Hayal gücünün ötesine geçmeye hazır mısın?</p></div>
               </div>
             </div>
+
+            {/* Suspense ile search param query handler */}
+            <Suspense fallback={null}>
+              <SearchQueryHandler onQuery={(q) => {
+                setSearchTerm(q);
+                // Arama sonuçlarını da güncelle (önceki useEffect'in işlevi)
+                axios.get(
+                  `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=tr-TR&query=${q}`
+                )
+                .then((response) => setMovies(response.data.results))
+                .catch((error) => console.error("Arama hatası:", error));
+              }} />
+            </Suspense>
 
             {/* Arama Kutusu */}
             <div className="flex justify-center mb-6 gap-2">
