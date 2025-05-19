@@ -27,7 +27,6 @@ router.post("/watchlist", authMiddleware, async (req, res) => {
             return res.status(404).json({ message: "Kullanıcı bulunamadı." });
         }
 
-        // 📌 Eğer `watchlist` alanı yoksa, oluştur
         if (!user.watchlist) {
             user.watchlist = [];
         }
@@ -63,7 +62,6 @@ router.get("/watchlist", authMiddleware, async (req, res) => {
             return res.status(404).json({ message: "Kullanıcı bulunamadı." });
         }
 
-        // 📌 Eğer `watchlist` yoksa, boş liste döndür
         if (!user.watchlist) {
             user.watchlist = [];
         }
@@ -79,7 +77,7 @@ router.get("/watchlist", authMiddleware, async (req, res) => {
 // 📌 Multer ayarları (Yüklenen dosyalar 'uploads/' klasörüne kaydedilecek)
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "uploads/"); // Dosyaların kaydedileceği klasör
+        cb(null, "uploads/");
     },
     filename: function (req, file, cb) {
         cb(null, `${req.user.id}-${Date.now()}${path.extname(file.originalname)}`);
@@ -96,22 +94,21 @@ router.post("/upload-avatar", authMiddleware, upload.single("avatar"), async (re
 
         console.log("📸 Yüklenen Dosya:", req.file);
 
-        // Kullanıcıyı bul
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: "Kullanıcı bulunamadı." });
         }
 
-        // 📌 Profil fotoğrafı URL'ini kaydederken tam yolu ekleyelim
         user.avatarUrl = `/uploads/${req.file.filename}`;
         await user.save();
 
         console.log("✅ Profil Fotoğrafı Güncellendi:", user.avatarUrl);
 
-        res.status(200).json({ message: "Profil fotoğrafı güncellendi!", avatarUrl: user.avatarUrl });
+        res.status(200).json({ message: "Profil fotoğrafı güncellendi!", avatarUrl: user.avatarUrl, user });
     } catch (error) {
         console.error("🚨 Profil fotoğrafı yüklenirken hata oluştu:", error);
         res.status(500).json({ message: "Sunucu hatası." });
     }
 });
+
 module.exports = router;

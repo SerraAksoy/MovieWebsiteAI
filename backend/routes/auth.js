@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 
 // Kullanıcı kayıt rotası
 router.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, avatarUrl } = req.body;
 
     try {
         // Kullanıcının zaten kayıtlı olup olmadığını kontrol et
@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
         }
 
         // Yeni kullanıcı oluştur
-        const newUser = new User({ username, email, password });
+        const newUser = new User({ username, email, password, avatarUrl });
         await newUser.save();
 
         // JWT token oluştur
@@ -29,6 +29,7 @@ router.post('/register', async (req, res) => {
                 id: newUser._id,
                 username: newUser.username,
                 email: newUser.email,
+                avatarUrl: newUser.avatarUrl || ""
             },
         });
     } catch (error) {
@@ -61,7 +62,16 @@ router.post("/login", async (req, res) => {
 
         console.log("Dönen Token:", token); // Token'ın oluşturulduğunu kontrol et
 
-        res.status(200).json({ message: "Giriş başarılı!", token, user });
+        res.status(200).json({
+            message: "Giriş başarılı!",
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                avatarUrl: user.avatarUrl || ""
+            }
+        });
     } catch (error) {
         console.error("Giriş sırasında hata oluştu:", error);
         res.status(500).json({ message: "Sunucu hatası. Lütfen tekrar deneyin." });

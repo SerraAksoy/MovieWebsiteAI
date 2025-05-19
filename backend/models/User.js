@@ -17,13 +17,20 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    avatarUrl: {
+        type: String,
+        default: "",
+    },
+
     watchlist: [ // 📌 İzleme listesi alanı eklendi
         {
             movieId: String,
             title: String,
             poster_path: String,
         },
+
     ],
+
 });
 
 // Şifreyi kaydetmeden önce hash'le
